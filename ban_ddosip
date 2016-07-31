@@ -1,0 +1,18 @@
+#!/bin/bash
+while true
+do
+        tail -f /var/log/nginx/access.log | grep 'domain.com' | grep 444 | grep -v 'google' | grep -v 'yandex' | grep -v 'majest' | grep -v 'bing' | awk '{print $1}' > /root/ddos051014.txt &
+        sleep 60
+        for IDS in `pgrep tail`
+        do
+                kill -KILL $IDS
+        done
+        kill -KILL $IDS
+        echo "Add IP into iptables rules"
+        for IPS in `cat /root/ddos051014.txt | sort -u`
+        do
+                echo $IPS
+                iptables -I INPUT 1 -s $IPS -j DROP
+        done
+        cat /dev/null > /root/ddos051014.txt
+done
